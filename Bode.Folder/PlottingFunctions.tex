@@ -1,0 +1,214 @@
+
+
+%%%%
+%%%%%%%%%%%%%%% GdB %%%%%%%%%%%%%%%
+%%%%
+
+
+\newcommand*{\ExactPlotGdb}[1]
+{
+    % Exact plot of GdB
+    \edef\GdbReelSum{}
+    \pgfplotsset{GdbReelSum/.list={1,...,\WcArraylen}}
+    \expanded{\noexpand
+      \addplot [samples at={\mySamplLst}] %=200,domain=\Wmin:\Wmax,mark=+]
+      {   GdB(\GainTot)
+        + GdBInteg(x)*\NbItegr
+          \GdbReelSum
+      }[LieuReel,#1];
+    }
+}
+
+\newcommand*{\AsymptoticPlotGdb}[2]
+{
+  % Asymptotic plot
+    % Create a list of domains (choice here to overlap)
+      \xdef\alist{(\Wmin):}
+      \foreachitem\i\in\WcArray[]{
+        \xdef\alist{\alist(#1*\i),(\i/#1):}
+      }
+      \xdef\alist{\alist(\Wmax)}
+      \readlist\alistlst{\alist}
+    % Plot each line
+      \foreach \i [count=\c] in \alist {
+        \edef\GdbAsymSum{}
+        \ifnum\c >1  
+          \pgfmathparse{\c-1}
+          \pgfplotsset{GdbAsymSum/.list={1,...,\pgfmathresult}}
+        \fi
+        \expanded{\noexpand%
+          \addplot [domain=\i,samples=2]
+          {   GdB(\GainTot)
+            + GdBInteg(x)*\NbItegr
+             \GdbAsymSum
+          }[Asymp,#2];
+        }
+      }
+}
+
+\newcommand*{\AsymptoticDecompGdb}[1]
+{
+  \foreach \i [count=\c] in {1,...,\WcArraylen} {
+    \edef\GdbAsymSum{}
+    \pgfplotsset{GdbAsymSum/.list={1,...,\c}}
+    \pgfmathparse{int(abs(\OrdrArray[\c]))}
+    \ifnum\pgfmathresult=2
+      \ifdim\ZArray[\c]pt >1pt
+        \pgfmathsetmacro\Ws{\WcArray[\c]*(\ZArray[\c]+sqrt(\ZArray[\c]^2-1))}
+        \pgfmathsetmacro\Wi{\WcArray[\c]*(\ZArray[\c]-sqrt(\ZArray[\c]^2-1))}
+        \addplot[domain=\Wi:\Ws,samples=2]
+        {   
+            (x < (\Ws/2)) * ((\OrdrArray[\c])*20*log10(x/\WcArray[\c]))
+            + GdB(\GainTot)
+            + GdBInteg(x)*\NbItegr
+            \GdbAsymSum
+        }[Asymp,densely dotted,#1];
+     \fi
+   \fi
+  }
+}
+
+\newcommand\ycoord[2][center]{{%
+   % The actual point of interest
+   \pgfpointanchor{#2}{#1}%
+   \pgfgetlastxy{\ix}{\iy}%
+   % (0,0)
+   \pgfplotspointaxisxy{0}{0}%
+   \pgfgetlastxy{\ox}{\oy}%
+   % (1,1)
+   \pgfplotspointaxisxy{1}{1}%
+   \pgfgetlastxy{\ux}{\uy}%
+   \pgfmathparse{(\iy-\oy)/(\uy-\oy)}%
+   \pgfmathprintnumber[fixed, precision=2]{\pgfmathresult}%
+   \expandafter\xdef\csname ycoord#2\endcsname{\pgfmathresult}%
+}}
+
+\newcommand\xcoord[2][center]{{%
+   % The actual point of interest
+   \pgfpointanchor{#2}{#1}%
+   \pgfgetlastxy{\ix}{\iy}%
+   % (0,0)
+   \pgfplotspointaxisxy{1}{0}%
+   \pgfgetlastxy{\ox}{\oy}%
+   % (1,1)
+   \pgfplotspointaxisxy{10}{0}%
+   \pgfgetlastxy{\ux}{\uy}%
+   \pgfmathparseFPU{10^((\ix-\ox)/(\ux-\ox))}%
+   \pgfmathprintnumber[fixed, precision=10]{\pgfmathresult}%
+   \expandafter\xdef\csname xcoord#2\endcsname{\pgfmathresult}%
+}}
+
+\newcommand*{\InfoResonance}[1]
+{
+  \foreach \i [count=\c] in {1,...,\WcArraylen} {
+    \edef\GdbReelSum{}
+    \pgfplotsset{GdbReelSum/.list={1,...,\WcArraylen}}
+    \pgfmathparse{int(abs(\OrdrArray[\c]))}
+    \ifnum\pgfmathresult=2
+      \ifdim\ZArray[\c]pt <.707pt
+        \pgfmathsetmacro\Wr{\WcArray[\c]*sqrt(1-2*(\ZArray[\c]^2))} 
+        \addplot [mark=none,samples at={\Wr}] {
+            + GdB(\GainTot)
+            + GdBInteg(x)*\NbItegr
+            \GdbReelSum
+        } node (PtMax) {};
+        %https://tex.stackexchange.com/questions/22018/how-to-access-xmin-xmax-ymin-ymax-from-within-pgfplots-axis-environment
+        %\pgfmathparseFPU{\Wr}
+        \draw[Asymp,densely dotted,#1] (PtMax.center-|\Wmin,0) --(PtMax.center)  -- (PtMax.center|-current axis.below origin) ;
+        % \draw[Asymp,densely dotted,#1] (PtMax.center-|\Wmin,0) --(PtMax.center)node[midway,anchor=south,inner sep=0] {\ycoord{PtMax}}  -- (PtMax.center|-current axis.below origin) node[midway,anchor=west,inner sep=0] {\xcoord{PtMax}} ;
+        %\node at (current axis.below origin) {\xcoord{PtMax}};
+        % \pgfmathsetmacro\PWr{\pgfmathprintnumber[fixed, precision=4]{\pgfmathresult}}
+     \fi
+  \fi
+  }
+}
+
+
+%%%%
+%%%%%%%%%%%%%%% Phase %%%%%%%%%%%%%%%
+%%%%
+
+\newcommand*{\ExactPlotPhase}[1]
+{
+  % Exact plot of phy
+    \edef\PhyReelSum{}
+    \pgfplotsset{PhyReelSum/.list={1,...,\WcArraylen}}
+    \expanded{\noexpand
+      \addplot [samples at={\mySamplLst}]
+      {
+        +\IntegrPhy*\NbItegr
+        \PhyReelSum
+      }[LieuReel,#1];
+    }
+}
+
+\newcommand*{\AsymptoticPlotPhase}[1]
+{
+  % Asymptotic plot
+    % Create a list of points to plot the steps
+      \xdef\alist{(\Wmin,\IntegrPhy*\NbItegr) }
+      \foreach \i in {1,...,\WcArraylen} {
+        \xdef\alist{\alist(\WcArray[\i],\IntegrPhy*\NbItegr}
+        \ifnum\i>1  
+          \pgfmathparse{\i-1}
+          \foreach \k in {1,...,\pgfmathresult} {
+            \xdef\alist{\alist\Saut{\OrdrArray[\k]}}
+          }
+        \fi
+        \xdef\alist{\alist)  (\WcArray[\i],\IntegrPhy*\NbItegr}
+        \foreach \k in {1,...,\i} {
+          \xdef\alist{\alist\Saut{\OrdrArray[\k]}}
+        }
+        \xdef\alist{\alist)}
+      }
+      \xdef\alist{\alist(\Wmax,\IntegrPhy*\NbItegr}
+      \foreach \k in {1,...,\WcArraylen} {
+        \xdef\alist{\alist\Saut{\OrdrArray[\k]}}
+      }
+      \xdef\alist{\alist)}
+    % Plot
+	  \addplot[mark=none] coordinates %[mark=none]
+	  { \alist }[Asymp];
+}
+
+
+\newcommand*{\AsymptoticDecompPhase}[1]
+{
+\xdef\alist{}
+  \foreach \i [count=\c] in {1,...,\WcArraylen} {
+    \pgfmathparse{int(abs(\OrdrArray[\c]))}
+    \ifnum\pgfmathresult=2
+      \ifdim\ZArray[\c]pt >1pt
+        \pgfmathsetmacro\Ws{\WcArray[\c]*(\ZArray[\c]+sqrt(\ZArray[\c]^2-1))}
+        \pgfmathsetmacro\Wi{\WcArray[\c]*(\ZArray[\c]-sqrt(\ZArray[\c]^2-1))}
+        %%%
+          \xdef\alist{\alist(\Wi,\IntegrPhy*\NbItegr}
+          \xdef\blist{}
+          \ifnum\i>1  
+            \pgfmathparse{\i-1}
+            \foreach \k in {1,...,\pgfmathresult} {
+              \xdef\blist{\blist\Saut{\OrdrArray[\k]}}
+            }
+          \fi
+          \xdef\alist{\alist\blist) (\Wi,\IntegrPhy*\NbItegr}
+          \xdef\alist{\alist\blist\Saut{\OrdrArray[\i]}*.5}
+          \xdef\alist{\alist) (\Ws,\IntegrPhy*\NbItegr}
+          \xdef\alist{\alist\blist\Saut{\OrdrArray[\i]}*.5}
+          \xdef\alist{\alist) (\Ws,\IntegrPhy*\NbItegr}
+          \foreach \k in {1,...,\i} {
+            \xdef\alist{\alist\Saut{\OrdrArray[\k]}}
+          }
+          \xdef\alist{\alist)}
+        %%%
+	  \addplot[mark=none] coordinates %[mark=none]
+        { \alist }[Asymp,densely dotted,#1];%,#4];
+     \fi
+   \fi
+  }
+}
+
+
+% Display the maximum : 
+    % https://tex.stackexchange.com/questions/46176/pgfplots-mark-max-min-value-of-a-function
+% Find intersection betwwen functions
+    % https://tex.stackexchange.com/questions/303142/value-variable-in-an-addplot-domain

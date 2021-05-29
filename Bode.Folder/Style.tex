@@ -1,0 +1,53 @@
+
+
+\newcommand*{\largeur}{ 15cm }
+\newcommand*{\hauteur}{ 7cm }
+\newcommand*{\offset}{ -6.3cm }
+\tikzset{
+	Asymp/.style={densely dashed,very thick,blue},
+	LieuReel/.style={very thick,red},
+}
+\pgfplotsset{
+	Bode/.style={height=\hauteur, width=\largeur, grid=both,
+	    axis x line=bottom,axis y line = left,
+	    xmax=\Wmax, xmin=\Wmin},
+% 	Bode/.style={height=\hauteur, width=\largeur, grid=both,
+% 	    axis x line=bottom,axis y line = left,
+% 	    xmax=\Wmax, xmin=\Wmin,
+% 	    minor grid style={black,thick,densely dotted},
+%         major grid style={black!70,thick},
+% 	    axis line style = very thick},
+	GaindB/.style={ylabel=$G_{dB}(\omega)\;[dB]$},
+	Phase/.style={yshift=\offset,ylabel=$\varphi(\omega)\;[deg]$,
+	xlabel=$\omega \;[rad.s^{-1}]$,},
+}
+
+% Definition of the samplelist to evaluate the plot
+    \newcommand*{\CreateList}{
+    % Create a list of values evenly spaced form \Wmin to \Wmax
+        \def\mySamplLst{\Wmin}
+        \xdef\mySamplNb{20}
+        \pgfmathparseFPU{(\Wmax/\Wmin)^(1/\mySamplNb)}
+        \xdef\myStep{\pgfmathresult}
+        \foreach \i in {1,2,...,\mySamplNb} 
+        {
+          \pgfmathparseFPU{\Wmin*(\myStep^(\i))}
+          \xdef\mySamplLst{\mySamplLst,\pgfmathresult}
+        }
+    
+    % Create a list of values evenly spaced around the different \Wc
+        \foreach \j in {1,...,\WcArraylen}{
+        \def\mySamplNb{20}
+        \def\mySamplCenter{\WcArray[\j]}
+        \def\mySamplwidth{2}
+        \pgfmathparseFPU{\mySamplwidth^(1/\mySamplNb)}
+        \xdef\myStep{\pgfmathresult}
+        \foreach \i in {-\mySamplNb,...,-1,0,1,2,...,\mySamplNb} 
+        {
+          \pgfmathparseFPU{\mySamplCenter*(\myStep^(\i))}
+          \xdef\mySamplLst{\mySamplLst,\pgfmathresult}}
+        }
+    
+    % Sorting
+        \LMTsortlist \mySamplLst
+     }

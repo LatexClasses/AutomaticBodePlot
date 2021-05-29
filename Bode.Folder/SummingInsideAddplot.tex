@@ -1,0 +1,52 @@
+
+
+% Create the summ of functions
+
+\pgfplotsset{GdbReelSum/.code={
+  \ifnum\OrdrArray[#1]=1
+    \edef\GdbReelSum{\GdbReelSum+GdbReelPrem(x/\WcArray[#1])}%
+  \fi
+  \ifnum\OrdrArray[#1]=-1
+    \edef\GdbReelSum{\GdbReelSum-GdbReelPrem(x/\WcArray[#1])}%
+  \fi
+  \ifnum\OrdrArray[#1]=2
+    \edef\GdbReelSum{\GdbReelSum+GdBReelDeux(x/\WcArray[#1],\ZArray[#1])}%
+  \fi
+  \ifnum\OrdrArray[#1]=-2
+    \edef\GdbReelSum{\GdbReelSum-GdBReelDeux(x/\WcArray[#1],\ZArray[#1])}%
+  \fi
+}}
+
+
+\pgfplotsset{GdbAsymSum/.code={
+  \ifnum\OrdrArray[#1]=1
+      \edef\GdbAsymSum{\GdbAsymSum+GdbAsympPrem(x/\WcArray[#1])}%
+  \fi
+  \ifnum\OrdrArray[#1]=-1
+      \edef\GdbAsymSum{\GdbAsymSum-GdbAsympPrem(x/\WcArray[#1])}%
+  \fi
+    \ifnum\OrdrArray[#1]=2
+      \edef\GdbAsymSum{\GdbAsymSum+GdbAsympDeux(x/\WcArray[#1])}%
+  \fi
+    \ifnum\OrdrArray[#1]=-2
+      \edef\GdbAsymSum{\GdbAsymSum-GdbAsympDeux(x/\WcArray[#1])}%
+  \fi
+}}
+
+
+\pgfplotsset{PhyReelSum/.code={
+  \ifnum\OrdrArray[#1]=1
+      \edef\PhyReelSum{\PhyReelSum+PhyPrem(x/\WcArray[#1])}
+  \fi
+  \ifnum\OrdrArray[#1]=-1
+      \edef\PhyReelSum{\PhyReelSum-PhyPrem(x/\WcArray[#1])}
+  \fi
+    \ifnum\OrdrArray[#1]=2
+      \edef\PhyReelSum{\PhyReelSum+PhyDeux(x/\WcArray[#1],\ZArray[#1])}
+  \fi
+    \ifnum\OrdrArray[#1]=-2
+      \edef\PhyReelSum{\PhyReelSum-PhyDeux(x/\WcArray[#1],\ZArray[#1])}
+  \fi
+}}
+
+

@@ -1,0 +1,57 @@
+\documentclass[border=5pt]{standalone}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.16}
+\usetikzlibrary{calc}
+
+% For arrays :
+    \usepackage{listofitems} 
+    % \readlist\WcArray{0.1,1,10,10,10}
+
+% To avoid LaTeX calculation limits
+    \usepgflibrary{fpu}
+    \newcommand\pgfmathparseFPU[1]{\begingroup%
+    \pgfkeys{/pgf/fpu,/pgf/fpu/output format=fixed}%
+    \pgfmathparse{#1}%
+    \pgfmathsmuggle\pgfmathresult\endgroup}%
+    
+
+\input{Bode.Folder/Expl3} % Sorting macro
+\input{Bode.Folder/SummingInsideAddplot} % Do sums inside addplot
+\input{Bode.Folder/Style} % Display adjustments
+\input{Bode.Folder/BodeFunctions} % Bode calculations
+\input{Bode.Folder/PlottingFunctions} % To make the main page lighter
+
+
+
+\begin{document}
+\begin{tikzpicture} []
+    % Plot limit values for W
+	  \def\Wmax{10^(2)}
+	  \def\Wmin{.01}
+	%Define the function
+      \def\NbItegr{-1}   % Number of integrators, negative if derivators
+      \def\GainTot{10}  % K for the whole function 
+      % Create an array containing the Wc of the functions (ordered)
+        \readlist\WcArray{0.1,1,10,10,10}
+      % Create an array containing the order of the functions
+        \readlist\OrdrArray{2,-2,1,-1,-1}
+      % Create an array containing the z of the functions (1 for first order)
+        \readlist\ZArray{2,0.1,1,1,1}
+    % Create a list of values where the plot is evaluated
+      \CreateList
+    % 
+	\begin{semilogxaxis} [Bode,GaindB,ymin=-40,ymax=40]%,ymin=-90,ymax=80]
+	    \ExactPlotGdb{}     % You can add style properties like green,dotted...
+	    \AsymptoticPlotGdb{1}{} % Replace 1 by 2 for overlaping of lines and You can add style
+	    \AsymptoticDecompGdb{green!70!black} % You can add style
+	    \InfoResonance{green!70!black} % You can add style
+	\end{semilogxaxis}
+	\begin{semilogxaxis} [Bode,Phase]%,ymax=100,ymin=-280,ytick={-90,-180,-270}]
+	    \ExactPlotPhase{}
+        \AsymptoticPlotPhase{}
+        \AsymptoticDecompPhase{green!70!black}
+	\end{semilogxaxis}
+
+\end{tikzpicture}
+
+\end{document}

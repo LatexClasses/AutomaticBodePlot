@@ -1,0 +1,35 @@
+
+
+\tikzset{declare function={
+    GdB(\x)=20*log10(\x);
+    GdBInteg(\x)=-20*(log10(\x));
+    PhyDeux(\x,\y)= % Define piecewise func / Definir par morceau
+      (\x < 1) * (-atan( (2*\y*\x/1)/(1-(\x/1)^2))) 
+    + (\x == 1) * (-90)
+    + (\x > 1) * (-180-(atan( (2*\y*\x/1)/(1-(\x/1)^2)))) ; 
+    PhyPrem(\x)= - atan(\x) ; 
+    GdbReelPrem(\x)=-10*(log10((\x)^2+1)) ;
+    GdbAsympPrem(\x)=-20*log10(\x);
+    GdBReelDeux(\x,\y)=-10*(log10((1-(\x)^2)^2+4*(\y^2)*(\x)^2));
+    GdbAsympDeux(\x)=-40*log10(\x);
+    },
+}
+
+\newcommand*{\IntegrPhy}{   -90  }
+\newcommand*{\PremOrdrSautPhy}{ -90}
+\newcommand*{\DeuxOrdrSautPhy}{ -180}
+
+\newcommand*{\Saut}[1]{
+    \ifnum#1=1
+      -90
+    \fi
+    \ifnum#1=-1
+      +90
+    \fi
+    \ifnum#1=2
+      -180
+    \fi
+    \ifnum#1=-2
+      +180
+    \fi
+  }

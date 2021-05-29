@@ -1,0 +1,15 @@
+
+%https://tex.stackexchange.com/questions/597857/sort-numbers-in-order-to-use-them-for-a-sample-list-or-convert-a-list-in-an-arra/
+
+% Fonction of expl3 to sort a list (here the list of sampling)
+    \ExplSyntaxOn
+    \cs_new_protected:Npn \LMTsortlist #1
+     {
+      \clist_sort:Nn #1 
+       {
+        \fp_compare:nNnTF {##1}>{##2}
+         {\sort_return_swapped:}
+         {\sort_return_same: }
+       } 
+     }
+    \ExplSyntaxOff
